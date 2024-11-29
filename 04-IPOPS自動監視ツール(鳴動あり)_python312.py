@@ -27,8 +27,9 @@ import keyboard
 
 from tkinter import messagebox
 from ctypes import *
- 
-global label_font,buttonSmall,buttonMiddle,buttonLarge,buttonNext,buttonExit,buttonConfig,label_set
+from PIL import Image,ImageTk
+
+global label_font,label_config,label_restart,label_end,label_set
 global sleepsec
 global root
 global quality
@@ -52,6 +53,8 @@ global modexclusionFlg
 global modsecurityFlg
 global modserviceFlg
 global frame1
+global setfontsize
+global button_plus,button_minus,buttonSmall,buttonMiddle,buttonLarge,buttonNext,buttonExit,buttonConfig
 
 serviceKeywordList=[]
 securityKeywordList=[]
@@ -76,6 +79,7 @@ rowcount3=0
 rowcount4=0
 
 sleepsec = 10
+setfontsize = 18
 
 FONT_TYPE = "meiryo"
 
@@ -89,7 +93,11 @@ hwnd = 0
 with open(filename,'w',encoding='utf-8') as f:
     f.truncate(0)
 
-df = pd.read_excel(r'KeywordList.xlsx',sheet_name=[0,1,2],header=None,index_col=None)
+try:
+    df = pd.read_excel(r'KeywordList.xlsx',sheet_name=[0,1,2],header=None,index_col=None)
+except FileNotFoundError:
+    messagebox.showerror("エラーダイアログ","keywordlist.xlsxが見つかりません。")
+    sys.exit()
 
 for i in range(df[0].shape[0]):
 
@@ -110,7 +118,7 @@ handle = 0
 
 class Form4(customtkinter.CTkScrollableFrame):
     def __init__(self, master, **kwargs):
-        global  exclusionKeywordList,rowcount4,modexclusionFlg
+        global  exclusionKeywordList,rowcount4,modexclusionFlg,button_plus
 
         super().__init__(master, **kwargs)
 
@@ -128,8 +136,8 @@ class Form4(customtkinter.CTkScrollableFrame):
         #self.textbox.focus()
 
         # ボタンを表示する
-        self.button = customtkinter.CTkButton(master=self, text="add", width=10,height=8,command=self.button_function4, font=self.fonts)
-        self.button.grid(row=0, column=1, padx=10)
+        self.button = customtkinter.CTkButton(master=self, text="",width=10,fg_color="transparent",image=button_plus,command=self.button_function4)
+        self.button.grid(row=0, column=1)
 
         # エラーメッセージ表示場所を確保
         self.labelErr= customtkinter.CTkLabel(master=self,text_color="red",text="")
@@ -143,9 +151,9 @@ class Form4(customtkinter.CTkScrollableFrame):
             self.setdata4(i)
 
     def setdata4(self,i):    
-        global keywordlist4,buttonlist4,exclusionKeywordList,rowcount4
+        global keywordlist4,buttonlist4,exclusionKeywordList,rowcount4,button_minus
 
-        buttonlist4.insert(i,customtkinter.CTkButton(master=self,text="del",width=10,height=9,command=lambda:self.button_event4(i)))
+        buttonlist4.insert(i,customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_minus,command=lambda:self.button_event4(i)))
         buttonlist4[i].grid(row=i+2,column=0,padx=20,pady=10,sticky="w")
 
         keywordlist4.insert(i,customtkinter.CTkLabel(master=self, text=exclusionKeywordList[i]))
@@ -153,7 +161,7 @@ class Form4(customtkinter.CTkScrollableFrame):
         rowcount4 = rowcount4 + 1
 
     def button_function4(self):
-        global keywordlist4,buttonlist4,exclusionKeywordList,rowcount4,modexclusionFlg
+        global keywordlist4,buttonlist4,exclusionKeywordList,rowcount4,modexclusionFlg,button_minus
 
         if self.textbox.get() == "":
             self.labelErr.configure(text="キーワード入力欄が空欄です。")
@@ -168,7 +176,7 @@ class Form4(customtkinter.CTkScrollableFrame):
         i = len(exclusionKeywordList)
         rowcount4 = rowcount4 + 1
 
-        buttonlist4.insert(i,customtkinter.CTkButton(master=self,text="del",width=10,height=9,command=lambda:self.button_event4(i)))
+        buttonlist4.insert(i,customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_minus,command=lambda:self.button_event4(i)))
         buttonlist4[i].grid(row=rowcount4+1,column=0,padx=20,pady=10,sticky="w")
 
         keywordlist4.insert(i,customtkinter.CTkLabel(master=self, text=self.textbox.get()))
@@ -190,7 +198,7 @@ class Form4(customtkinter.CTkScrollableFrame):
 
 class Form3(customtkinter.CTkScrollableFrame):
     def __init__(self, master, **kwargs):
-        global  securityKeywordList,rowcount3,modsecurityFlg
+        global  securityKeywordList,rowcount3,modsecurityFlg,button_plus
 
         super().__init__(master, **kwargs)
 
@@ -208,8 +216,8 @@ class Form3(customtkinter.CTkScrollableFrame):
         #self.textbox.focus()
 
         # ボタンを表示する
-        self.button = customtkinter.CTkButton(master=self, text="add", width=10,height=8,command=self.button_function3, font=self.fonts)
-        self.button.grid(row=0, column=1, padx=10)
+        self.button = customtkinter.CTkButton(master=self, text="",width=10,fg_color="transparent",image=button_plus,command=self.button_function3)
+        self.button.grid(row=0, column=1)
 
         # エラーメッセージ表示場所を確保
         self.labelErr= customtkinter.CTkLabel(master=self,text_color="red",text="")
@@ -223,9 +231,9 @@ class Form3(customtkinter.CTkScrollableFrame):
             self.setdata3(i)
 
     def setdata3(self,i):    
-        global keywordlist3,buttonlist3,securityKeywordList,rowcount3
+        global keywordlist3,buttonlist3,securityKeywordList,rowcount3,button_minus
 
-        buttonlist3.insert(i,customtkinter.CTkButton(master=self,text="del",width=10,height=9,command=lambda:self.button_event3(i)))
+        buttonlist3.insert(i,customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_minus,command=lambda:self.button_event3(i)))
         buttonlist3[i].grid(row=i+2,column=0,padx=20,pady=10,sticky="w")
 
         keywordlist3.insert(i,customtkinter.CTkLabel(master=self, text=securityKeywordList[i]))
@@ -233,7 +241,7 @@ class Form3(customtkinter.CTkScrollableFrame):
         rowcount3 = rowcount3 + 1
 
     def button_function3(self):
-        global keywordlist3,buttonlist3,securityKeywordList,rowcount3,modsecurityFlg
+        global keywordlist3,buttonlist3,securityKeywordList,rowcount3,modsecurityFlg,button_minus
 
         if self.textbox.get() == "":
             self.labelErr.configure(text="キーワード入力欄が空欄です。")
@@ -248,7 +256,7 @@ class Form3(customtkinter.CTkScrollableFrame):
         i = len(securityKeywordList)
         rowcount3 = rowcount3 + 1
 
-        buttonlist3.insert(i,customtkinter.CTkButton(master=self,text="del",width=10,height=9,command=lambda:self.button_event3(i)))
+        buttonlist3.insert(i,customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_minus,command=lambda:self.button_event3(i)))
         buttonlist3[i].grid(row=rowcount3+1,column=0,padx=20,pady=10,sticky="w")
 
         keywordlist3.insert(i,customtkinter.CTkLabel(master=self, text=self.textbox.get()))
@@ -270,7 +278,7 @@ class Form3(customtkinter.CTkScrollableFrame):
 
 class Form2(customtkinter.CTkScrollableFrame):
     def __init__(self, master, **kwargs):
-        global  serviceKeywordList,rowcount2,modserviceFlg
+        global  serviceKeywordList,rowcount2,modserviceFlg,button_plus
 
         super().__init__(master, **kwargs)
 
@@ -288,8 +296,8 @@ class Form2(customtkinter.CTkScrollableFrame):
         #self.textbox.focus()
 
         # ボタンを表示する
-        self.button = customtkinter.CTkButton(master=self, text="add", width=10,height=8,command=self.button_function2, font=self.fonts)
-        self.button.grid(row=0, column=1, padx=10)
+        self.button = customtkinter.CTkButton(master=self, text="",width=10,fg_color="transparent",image=button_plus,command=self.button_function2)
+        self.button.grid(row=0, column=1)
 
         # エラーメッセージ表示場所を確保
         self.labelErr= customtkinter.CTkLabel(master=self,text_color="red",text="")
@@ -303,9 +311,9 @@ class Form2(customtkinter.CTkScrollableFrame):
             self.setdata2(i)
 
     def setdata2(self,i):    
-        global keywordlist2,buttonlist2,serviceKeywordList,rowcount2
+        global keywordlist2,buttonlist2,serviceKeywordList,rowcount2,button_minus
 
-        buttonlist2.insert(i,customtkinter.CTkButton(master=self,text="del",width=10,height=9,command=lambda:self.button_event2(i)))
+        buttonlist2.insert(i,customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_minus,command=lambda:self.button_event2(i)))
         buttonlist2[i].grid(row=i+2,column=0,padx=20,pady=10,sticky="w")
 
         keywordlist2.insert(i,customtkinter.CTkLabel(master=self, text=serviceKeywordList[i]))
@@ -313,7 +321,7 @@ class Form2(customtkinter.CTkScrollableFrame):
         rowcount2 = rowcount2 + 1
 
     def button_function2(self):
-        global keywordlist2,buttonlist2,serviceKeywordList,rowcount2,modserviceFlg
+        global keywordlist2,buttonlist2,serviceKeywordList,rowcount2,modserviceFlg,button_minus
 
         if self.textbox.get() == "":
             self.labelErr.configure(text="キーワード入力欄が空欄です。")
@@ -328,7 +336,7 @@ class Form2(customtkinter.CTkScrollableFrame):
         i = len(serviceKeywordList)
         rowcount2 = rowcount2 + 1
 
-        buttonlist2.insert(i,customtkinter.CTkButton(master=self,text="del",width=10,height=9,command=lambda:self.button_event2(i)))
+        buttonlist2.insert(i,customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_minus,command=lambda:self.button_event2(i)))
         buttonlist2[i].grid(row=rowcount2+1,column=0,padx=20,pady=10,sticky="w")
 
         keywordlist2.insert(i,customtkinter.CTkLabel(master=self, text=self.textbox.get()))
@@ -350,7 +358,7 @@ class Form2(customtkinter.CTkScrollableFrame):
 
 class Form1(customtkinter.CTkScrollableFrame):
     def __init__(self, master, **kwargs):
-        global  tmpExcKeywordlist,rowcount
+        global  tmpExcKeywordlist,rowcount,button_plus
 
         super().__init__(master, **kwargs)
 
@@ -366,8 +374,9 @@ class Form1(customtkinter.CTkScrollableFrame):
         #self.textbox.focus()
 
         # ボタンを表示する
-        self.button = customtkinter.CTkButton(master=self, text="add", width=10,height=8,command=self.button_function, font=self.fonts)
-        self.button.grid(row=0, column=1, padx=10)
+        #self.button = customtkinter.CTkButton(master=self, text="add", width=10,height=8,command=self.button_function, font=self.fonts)
+        self.button = customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_plus,command=self.button_function)
+        self.button.grid(row=0, column=1)
 
         # エラーメッセージ表示場所を確保
         self.labelErr= customtkinter.CTkLabel(master=self,text_color="red",text="")
@@ -381,9 +390,9 @@ class Form1(customtkinter.CTkScrollableFrame):
             self.setdata(i)
 
     def setdata(self,i):    
-        global keywordlist,buttonlist,tmpExcKeywordlist,tmpOnOffList,rowcount
+        global keywordlist,buttonlist,tmpExcKeywordlist,tmpOnOffList,rowcount,button_minus
 
-        buttonlist.insert(i,customtkinter.CTkButton(master=self,text="del",width=10,height=9,command=lambda:self.button_event(i)))
+        buttonlist.insert(i,customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_minus,command=lambda:self.button_event(i)))
         buttonlist[i].grid(row=i+2,column=0,padx=20,pady=10,sticky="w")
 
         if tmpOnOffList[i] == "off":
@@ -396,7 +405,7 @@ class Form1(customtkinter.CTkScrollableFrame):
         rowcount = rowcount + 1
 
     def button_function(self):
-        global keywordlist,buttonlist,tmpExcKeywordlist,tmpOnOffList,rowcount
+        global keywordlist,buttonlist,tmpExcKeywordlist,tmpOnOffList,rowcount,button_minus
 
         if self.textbox.get() == "":
             self.labelErr.configure(text="キーワード入力欄が空欄です。")
@@ -413,7 +422,7 @@ class Form1(customtkinter.CTkScrollableFrame):
 
         self.switch_var = customtkinter.StringVar(value="on")
 
-        buttonlist.insert(i,customtkinter.CTkButton(master=self,text="del",width=10,height=9,command=lambda:self.button_event(i)))
+        buttonlist.insert(i,customtkinter.CTkButton(master=self,text="",width=10,fg_color="transparent",image=button_minus,command=lambda:self.button_event(i)))
         #buttonlist[i].grid(row=rowcount,column=0,padx=20,pady=10,sticky="w")
         buttonlist[i].grid(row=rowcount+1,column=0,padx=20,pady=10,sticky="w")
 
@@ -454,6 +463,7 @@ class Form1(customtkinter.CTkScrollableFrame):
 #class App(customtkinter.CTk):
 class App(customtkinter.CTkToplevel):
     def __init__(self):
+        global  button_plus,button_minus
         super().__init__()
 
         # メンバー変数の設定
@@ -468,23 +478,31 @@ class App(customtkinter.CTkToplevel):
         self.title("アラームキーワード設定ツール")
         self.resizable(0,0)
 
+        button_plus = customtkinter.CTkImage(Image.open("buttonimage//plus.png"),size=(20,20))
+        button_minus = customtkinter.CTkImage(Image.open("buttonimage//minus.png"),size=(20,20))
+        button_saveexit = customtkinter.CTkImage(Image.open("buttonimage//saveexit.png"),size=(30,30))
+
         # フォームのセットアップをする
         self.setup_form()
 
         label_2 = customtkinter.CTkLabel(master=self,text="画面サイズ")
-        label_2.place(x=480, y=10)
+        label_2.place(x=485, y=10)
 
         self.buttonSmall = customtkinter.CTkButton(master=self, text="小", width=10,height=8,command=lambda:self.modsize_function("小"), font=self.fonts)
-        self.buttonSmall.place(x=550, y=10)
+        self.buttonSmall.place(x=555, y=10)
         
         self.buttonMiddle = customtkinter.CTkButton(master=self, text="中", width=10,height=8,command=lambda:self.modsize_function("中"), font=self.fonts)
-        self.buttonMiddle.place(x=570, y=10)
-        
-        self.buttonLarge = customtkinter.CTkButton(master=self, text="大", width=10,height=8,command=lambda:self.modsize_function("大"), font=self.fonts)
-        self.buttonLarge.place(x=590, y=10)
+        self.buttonMiddle.place(x=575, y=10)
 
-        self.buttonClose = customtkinter.CTkButton(master=self, text="save&close", width=10,height=8,command=lambda:self.close_function(self), font=self.fonts)
-        self.buttonClose.place(x=525, y=650)
+        self.buttonLarge = customtkinter.CTkButton(master=self, text="大", width=10,height=8,command=lambda:self.modsize_function("大"), font=self.fonts)
+        self.buttonLarge.place(x=595, y=10)
+
+        label_3 = customtkinter.CTkLabel(master=self,text="設定を保存して終了",font=self.fonts)
+        label_3.place(x=443, y=650)
+
+        self.buttonClose = customtkinter.CTkButton(master=self, text="",width=10,fg_color="transparent",image=button_saveexit,command=lambda:self.close_function(self))
+        #self.buttonClose = customtkinter.CTkButton(master=self, text="save&close", width=10,height=8,command=lambda:self.close_function(self), font=self.fonts)
+        self.buttonClose.place(x=582, y=645)
 
     def setup_form(self):
         # CustomTkinter のフォームデザイン設定
@@ -527,7 +545,7 @@ class App(customtkinter.CTkToplevel):
             customtkinter.set_window_scaling(1.5)
             
     def close_function(self,root_window):
-        global keywordlist,buttonlist,tmpExcKeywordlist,tmpOnOffList,exclusionKeywordList,modexclusionFlg,serviceKeywordList,securityKeywordList,modexSecurityFlg
+        global keywordlist,buttonlist,tmpExcKeywordlist,tmpOnOffList,exclusionKeywordList,serviceKeywordList,securityKeywordList,modexSecurityFlg,modserviceFlg,modexclusionFlg
         
         tmplist1 = [a for a in tmpExcKeywordlist if a != "NoData"]
         tmplist2 = [b for b in tmpOnOffList if b != "NoData"]
@@ -607,7 +625,7 @@ def imageclick(sImageFileName,iSleepCount,x,y,clickcount):
         
         try:
             #confidence(曖昧検索)指定時は画像ファイルパスに日本語が含まれているとエラーになる
-            Result = pyautogui.locateCenterOnScreen("image04\\" + sImageFileName,grayscale=True,confidence=qualty)
+            Result = pyautogui.locateCenterOnScreen("image\\" + sImageFileName,grayscale=True,confidence=qualty)
             break
 
         except pyautogui.ImageNotFoundException:
@@ -664,21 +682,13 @@ def Init():
     #ツールウィンドウの表示
     root.mainloop()
 
-def modfsize_function(text):
-    global text2
-
-    if text == "小":
-        text2.configure(font=("meiryo",14))
-    elif text == "中":
-        text2.configure(font=("meiryo",18))
-    else:
-        text2.configure(font=("meiryo",22))
 
 def alarmCheck():
     global serviceKeywordList,securityKeywordList,exclusionKeywordList
     global quality,root,yesnoMsgflg,afterid,alarm_old,exitflg,outputflg,handle,tmpExcKeywordlist,tmpOnOffList,sleepsec
-    global frame1,text2,label,label_font,buttonSmall,buttonMiddle,buttonLarge,buttonNext,buttonExit,buttonConfig,label_set
- 
+    global frame1,text2,buttonSmall,buttonMiddle,buttonLarge,buttonNext,buttonExit,buttonConfig,setfontsize
+    global label,label_font,label_config,label_restart,label_end,label_set
+
     #depth = len(inspect.stack())
     #print(f"stack-depth: {depth}")
     #print(inspect.stack())
@@ -693,6 +703,9 @@ def alarmCheck():
         frame1.grid_forget()
         text2.grid_forget()
         label_font.place_forget()
+        label_config.place_forget()
+        label_restart.place_forget()
+        label_end.place_forget()
         buttonSmall.place_forget()
         buttonMiddle.place_forget()
         buttonLarge.place_forget()
@@ -871,35 +884,51 @@ def alarmCheck():
             customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
             customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
+            button_restart = customtkinter.CTkImage(Image.open("buttonimage//restart.png"),size=(30,30))
+            button_end = customtkinter.CTkImage(Image.open("buttonimage//end.png"),size=(30,30))
+            button_config = customtkinter.CTkImage(Image.open("buttonimage//haguruma.png"),size=(30,30))
+
             label_font = customtkinter.CTkLabel(master=root,text="フォントサイズ")
-            label_font.place(x=1630, y=10)
+            label_font.place(x=1627, y=10)
 
             buttonSmall = customtkinter.CTkButton(master=root, text="小", width=10,height=8,command=lambda:modfsize_function("小"), font=("meiryo",15))
-            buttonSmall.place(x=1710, y=10)
+            buttonSmall.place(x=1707, y=10)
         
             buttonMiddle = customtkinter.CTkButton(master=root, text="中", width=10,height=8,command=lambda:modfsize_function("中"), font=("meiryo",15))
-            buttonMiddle.place(x=1740, y=10)
+            buttonMiddle.place(x=1737, y=10)
         
             buttonLarge = customtkinter.CTkButton(master=root, text="大", width=10,height=8,command=lambda:modfsize_function("大"), font=("meiryo",15))
-            buttonLarge.place(x=1770, y=10)
+            buttonLarge.place(x=1767, y=10)
 
             label_set = customtkinter.CTkLabel(master=root,text="ctrl+c,vでデータコピー可   設定ボタンで一時無視/検索/検索除外キーワード設定可",text_color=("green2"),font=("meiryo",22))
             label_set.place(x=10, y=873)
 
-            buttonNext = customtkinter.CTkButton(master=root, text="   監視再開   ", width=30,height=8,command=nextloop, font=("meiryo",23))
-            buttonNext.place(x=1295, y=870)
+            label_config = customtkinter.CTkLabel(master=root,text="設定",font=("meiryo",22))
+            label_config.place(x=1400, y=873)
 
-            buttonExit = customtkinter.CTkButton(master=root, text="     終了     ", width=30,height=8,command=lambda:loopexit(root), font=("meiryo",23))
-            buttonExit.place(x=1480, y=870)
+            buttonConfig = customtkinter.CTkButton(master=root, text="",width=20,fg_color="transparent",image=button_config,command=modconfig)
+            #buttonConfig = customtkinter.CTkButton(master=root, text="     設定     ", width=30,height=8,command=modconfig, font=("meiryo",23))
+            buttonConfig.place(x=1445, y=870)
 
-            buttonConfig = customtkinter.CTkButton(master=root, text="     設定     ", width=30,height=8,command=modconfig, font=("meiryo",23))
-            buttonConfig.place(x=1650, y=870)
+            label_restart = customtkinter.CTkLabel(master=root,text="監視再開",font=("meiryo",22))
+            label_restart.place(x=1527, y=873)
+
+            buttonNext = customtkinter.CTkButton(master=root, text="",width=20,fg_color="transparent",image=button_restart,command=nextloop)
+            #buttonNext = customtkinter.CTkButton(master=root, text="   監視再開   ", width=30,height=8,command=nextloop, font=("meiryo",23))
+            buttonNext.place(x=1620, y=870)
+
+            label_end = customtkinter.CTkLabel(master=root,text="終了",font=("meiryo",22))
+            label_end.place(x=1705, y=873)
+
+            buttonExit = customtkinter.CTkButton(master=root, text="",width=20,fg_color="transparent",image=button_end,command=lambda:loopexit(root))
+            #buttonExit = customtkinter.CTkButton(master=root, text="     終了     ", width=30,height=8,command=lambda:loopexit(root), font=("meiryo",23))
+            buttonExit.place(x=1750, y=870)
 
             frame1 = customtkinter.CTkScrollableFrame(master=root,width=1770,height=800)
   
             frame1.grid(row=0,column=0,padx=0,pady=50)
 
-            text2 = customtkinter.CTkTextbox(master=frame1,width=1770,height=800,font=("meiryo",18))
+            text2 = customtkinter.CTkTextbox(master=frame1,width=1770,height=800,font=("meiryo",setfontsize))
             text2.insert(0., stringList)
 
             text2.grid(row=0,column=0)
@@ -915,6 +944,19 @@ def alarmCheck():
             #root.deiconify()
 
             #root.after(sleepsec*1000,alarmCheck)
+
+def modfsize_function(text):
+    global text2,setfontsize
+
+    if text == "小":
+        text2.configure(font=("meiryo",14))
+        setfontsize = 14
+    elif text == "中":
+        text2.configure(font=("meiryo",18))
+        setfontsize = 18
+    else:
+        text2.configure(font=("meiryo",22))
+        setfontsize = 22
 
 def modconfig():
     global root,buttonNext,buttonExit,buttonConfig
