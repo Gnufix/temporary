@@ -580,8 +580,10 @@ class App(customtkinter.CTkToplevel):
 
         closeflg = True
 
+        root_window.withdraw()
+
         #root_window.quit()
-        root_window.destroy()
+        #root_window.destroy()
         #sys.exit()
 
     def quit_me(self,root_window):
@@ -1016,10 +1018,12 @@ class CustomThread(threading.Thread):
         return self.id
         
     def raise_exception(self):
+
         res = ctypes.pythonapi.PyThreadState_SetAsyncExc(
             ctypes.c_long(self.get_id()), 
             ctypes.py_object(SystemExit)
         )
+
         if res > 1:
             ctypes.pythonapi.PyThreadState_SetAsyncExc(
                 ctypes.c_long(self.get_id()), 
