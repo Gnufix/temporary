@@ -49,9 +49,7 @@ global handle
 global keywordlist,keywordlist2,keywordlist3,keywordlist4
 global buttonlist,buttonlist2,buttonlist3,buttonlist4
 global rowcount,rowcount2,rowcount3,rowcount4
-global modexclusionFlg
-global modsecurityFlg
-global modserviceFlg
+global modserviceFlg,modsecurityFlg,modexclusionFlg,closeflg
 global frame1
 global setfontsize
 global button_plus,button_minus,buttonSmall,buttonMiddle,buttonLarge,buttonNext,buttonExit,buttonConfig
@@ -546,8 +544,10 @@ class App(customtkinter.CTkToplevel):
             customtkinter.set_window_scaling(1.5)
             
     def close_function(self,root_window):
-        global keywordlist,buttonlist,tmpExcKeywordlist,tmpOnOffList,exclusionKeywordList,serviceKeywordList,securityKeywordList,modexSecurityFlg,modserviceFlg,modexclusionFlg
-        
+        global keywordlist,buttonlist,tmpExcKeywordlist,tmpOnOffList
+        global exclusionKeywordList,serviceKeywordList,securityKeywordList
+        global closeflg,modsecurityFlg,modserviceFlg,modexclusionFlg
+
         tmplist1 = [a for a in tmpExcKeywordlist if a != "NoData"]
         tmplist2 = [b for b in tmpOnOffList if b != "NoData"]
         tmplist3 = [c for c in serviceKeywordList if c != "NoDataNoDataNoDataNoDataNoData"]
@@ -578,6 +578,8 @@ class App(customtkinter.CTkToplevel):
         customtkinter.set_widget_scaling(1.0)
         customtkinter.set_window_scaling(1.0)
 
+        closeflg = True
+
         #root_window.quit()
         root_window.destroy()
         #sys.exit()
@@ -591,7 +593,7 @@ class App(customtkinter.CTkToplevel):
         exitflg = True
 
         #root_window.quit()
-        root_window.destroy()
+        #root_window.destroy()
         #sys.exit()
 
 #ファイル実行時に立ち上がるコマンドプロンプト画面をPC画面の右上に表示
@@ -683,7 +685,6 @@ def Init():
 
     #ツールウィンドウの表示
     root.mainloop()
-
 
 def alarmCheck():
     global serviceKeywordList,securityKeywordList,exclusionKeywordList
@@ -781,7 +782,7 @@ def alarmCheck():
                 break
         
         if len(almdata) == 0:
-            tk.messagebox("アラーム取得失敗")
+            messagebox.showerror("エラーダイアログ","アラーム取得失敗")
             exitflg == True
 
         # 承諾操作停止ボタンクリック
@@ -988,10 +989,6 @@ def modconfig():
     
     app = App()
     #app.mainloop()
-    
-    buttonNext.configure(state="normal")
-    buttonExit.configure(state="normal")
-    buttonConfig.configure(state="normal")
 
 def nextloop():
     alarmCheck()
@@ -1001,7 +998,7 @@ def loopexit(root_window):
 
     exitflg = True
     #root_window.quit()
-    root_window.destroy()
+    #root_window.destroy()
 
     #sys.exit()
 
@@ -1033,12 +1030,19 @@ class CustomThread(threading.Thread):
 if __name__ == '__main__':
     outputflg = False
     exitflg = False
+    closeflg = False
 
     thread = CustomThread(target=Init,daemon=True)
     thread.start()
     while True:
         if keyboard.is_pressed('esc') == True or exitflg == True:
             break
+        elif closeflg == True:
+            buttonNext.configure(state="normal")
+            buttonExit.configure(state="normal")
+            buttonConfig.configure(state="normal")
+            closeflg=False
+        
         time.sleep(0.1)
  
     if outputflg == True:
