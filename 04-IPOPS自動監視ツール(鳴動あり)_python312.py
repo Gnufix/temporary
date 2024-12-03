@@ -8,13 +8,14 @@ import time
 import pyautogui
 import pandas as pd
 import win32gui
+import win32con
 import ctypes
 import subprocess
 import customtkinter
 #import CTkMessagebox
 
 #import traceback
-#import inspect
+import inspect
 
 #pygame import時のログ抑制
 os.environ["PYGAME_HIDE_SUPPORT_Prompt"] = "hide"
@@ -264,7 +265,7 @@ class Form3(customtkinter.CTkScrollableFrame):
         securityKeywordList.insert(i,self.textbox.get())
         
         self.textbox.delete(first_index=0,last_index="end")
-        modexclusionFlg = True
+        modsecurityFlg = True
 
     def button_event3(self,setnum):
         global keywordlist3,buttonlist3,securityKeywordList,modsecurityFlg
@@ -481,34 +482,8 @@ class App(customtkinter.CTkToplevel):
         button_minus = customtkinter.CTkImage(Image.open("buttonimage//minus.png"),size=(20,20))
         button_saveexit = customtkinter.CTkImage(Image.open("buttonimage//saveexit.png"),size=(30,30))
 
-        # フォームのセットアップをする
-        self.setup_form()
-
-        self.label_2 = customtkinter.CTkLabel(master=self,text="画面サイズ")
-        self.label_2.place(x=485, y=10)
-
-        self.buttonSmall = customtkinter.CTkButton(master=self, text="小", width=10,height=8,command=lambda:self.modsize_function("小"), font=self.fonts)
-        self.buttonSmall.place(x=555, y=10)
-        
-        self.buttonMiddle = customtkinter.CTkButton(master=self, text="中", width=10,height=8,command=lambda:self.modsize_function("中"), font=self.fonts)
-        self.buttonMiddle.place(x=575, y=10)
-
-        self.buttonLarge = customtkinter.CTkButton(master=self, text="大", width=10,height=8,command=lambda:self.modsize_function("大"), font=self.fonts)
-        self.buttonLarge.place(x=595, y=10)
-
-        self.label_3 = customtkinter.CTkLabel(master=self,text="設定を保存して終了",font=self.fonts)
-        self.label_3.place(x=443, y=650)
-
-        self.buttonClose = customtkinter.CTkButton(master=self, text="",width=10,fg_color="transparent",image=button_saveexit,command=lambda:self.close_function(self))
-        #self.buttonClose = customtkinter.CTkButton(master=self, text="save&close", width=10,height=8,command=lambda:self.close_function(self), font=self.fonts)
-        self.buttonClose.place(x=582, y=645)
-
-    def setup_form(self):
-        # CustomTkinter のフォームデザイン設定
         customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
         customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
-
-        #self.scrollverframe = customtkinter.CTkScrollableFrame(master=self,width=10,height=200)
 
         self.tabview = customtkinter.CTkTabview(self)
         self.tabview.pack(padx=20,pady=40)
@@ -530,6 +505,26 @@ class App(customtkinter.CTkToplevel):
 
         self.my_frame4 = Form4(master=self.tabview.tab("検索除外"),width=550,height=520)
         self.my_frame4.grid(row=0,column=0,padx=20,pady=10,sticky="nsew")
+
+        self.label_2 = customtkinter.CTkLabel(master=self,text="画面サイズ")
+        self.label_2.place(x=485, y=10)
+
+        self.buttonSmall = customtkinter.CTkButton(master=self, text="小", width=10,height=8,command=lambda:self.modsize_function("小"), font=self.fonts)
+        self.buttonSmall.place(x=555, y=10)
+        
+        self.buttonMiddle = customtkinter.CTkButton(master=self, text="中", width=10,height=8,command=lambda:self.modsize_function("中"), font=self.fonts)
+        self.buttonMiddle.place(x=575, y=10)
+
+        self.buttonLarge = customtkinter.CTkButton(master=self, text="大", width=10,height=8,command=lambda:self.modsize_function("大"), font=self.fonts)
+        self.buttonLarge.place(x=595, y=10)
+
+        self.label_3 = customtkinter.CTkLabel(master=self,text="設定を保存して終了",font=self.fonts)
+        self.label_3.place(x=443, y=650)
+
+        self.buttonClose = customtkinter.CTkButton(master=self, text="",width=10,fg_color="transparent",image=button_saveexit,command=lambda:self.close_function(self))
+        #self.buttonClose = customtkinter.CTkButton(master=self, text="save&close", width=10,height=8,command=lambda:self.close_function(self), font=self.fonts)
+        self.buttonClose.place(x=582, y=645)
+
 
     def modsize_function(self,text):
 
@@ -579,6 +574,22 @@ class App(customtkinter.CTkToplevel):
         customtkinter.set_window_scaling(1.0)
 
         closeflg = True
+
+        # root_window.label_2.place_forget()
+        # root_window.label_3.place_forget()
+        # root_window.buttonSmall.place_forget()
+        # root_window.buttonMiddle.place_forget()
+        # root_window.buttonLarge.place_forget()
+        # root_window.buttonClose.place_forget()
+        # root_window.my_frame.grid_forget()
+        # root_window.my_frame2.grid_forget()
+        # root_window.my_frame3.grid_forget()
+        # root_window.my_frame4.grid_forget()
+        # root_window.tabview.delete("一時無視")
+        # root_window.tabview.delete("サービス制御")
+        # root_window.tabview.delete("法人セキュリティ")
+        # root_window.tabview.delete("検索除外")
+        # root_window.tabview.pack_forget
 
         root_window.withdraw()
 
@@ -756,7 +767,7 @@ def alarmCheck():
     else:
         # IPOPS MTの操作画面を最前面 & 位置調整
         failure = win32gui.FindWindow(None,"ProactnesII NM-発生中障害一覧-IPOPS(MTB) - Internet Explorer")
-        ctypes.windll.user32.SetForegroundWindow(failure)
+        win32gui.SetWindowPos(failure,win32con.HWND_TOPMOST,0,0,0,0,win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
         # 承諾操作開始ボタンクリック
         imageclick("01_ClickSyoudakuSousa.png",5,0,0,1)
@@ -789,6 +800,9 @@ def alarmCheck():
 
         # 承諾操作停止ボタンクリック
         imageclick("03_ClickSyoudakuSousaStop.png",5,0,0,1)       
+
+        win32gui.SetWindowPos(failure,win32con.HWND_NOTOPMOST,0,0,0,0,win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+
 
         #メモリにコピーした全アラームを1行単位でリスト分割
         almlist = re.split("\r\n",almdata)
@@ -1056,4 +1070,4 @@ if __name__ == '__main__':
     thread.raise_exception()
 
     # 既に終了しているので処理を待機しないはず
-    thread.join()
+    thread.join(timeout = 5)
