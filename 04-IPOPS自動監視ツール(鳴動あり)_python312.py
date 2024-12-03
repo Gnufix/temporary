@@ -669,6 +669,16 @@ def Init():
     #再帰関数起動回数上限値取得
     #print(sys.getrecursionlimit())
 
+    failureStop = win32gui.FindWindow(None,"ProactnesII NM-発生中障害一覧-IPOPS(MTB)-承諾中 - Internet Explorer")
+    
+    if failureStop != 0:
+        win32gui.SetWindowPos(failureStop,win32con.HWND_TOPMOST,0,0,0,0,win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+        
+        # 承諾操作停止ボタンクリック
+        imageclick("00_ClickSyoudakuSousaTyuushi.png",5,0,0,1)
+
+        win32gui.SetWindowPos(failureStop,win32con.HWND_NOTOPMOST,0,0,0,0,win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
+
     alarm_old = ""
     yesnoMsgflg = False
     
@@ -767,6 +777,12 @@ def alarmCheck():
     else:
         # IPOPS MTの操作画面を最前面 & 位置調整
         failure = win32gui.FindWindow(None,"ProactnesII NM-発生中障害一覧-IPOPS(MTB) - Internet Explorer")
+
+        if failure == 0:
+            messagebox.showerror("エラーダイアログ","「ProactnesII NM-発生中障害一覧-IPOPS(MTB) - Internet Explorer」画面が見つかりません。")
+            exitflg == True
+            sys.exit()
+
         win32gui.SetWindowPos(failure,win32con.HWND_TOPMOST,0,0,0,0,win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
 
         # 承諾操作開始ボタンクリック
@@ -797,12 +813,12 @@ def alarmCheck():
         if len(almdata) == 0:
             messagebox.showerror("エラーダイアログ","アラーム取得失敗")
             exitflg == True
+            sys.exit()
 
         # 承諾操作停止ボタンクリック
         imageclick("03_ClickSyoudakuSousaStop.png",5,0,0,1)       
 
         win32gui.SetWindowPos(failure,win32con.HWND_NOTOPMOST,0,0,0,0,win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
-
 
         #メモリにコピーした全アラームを1行単位でリスト分割
         almlist = re.split("\r\n",almdata)
